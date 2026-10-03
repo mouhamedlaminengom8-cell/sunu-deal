@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: sunu-deal
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/me
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data
+      - key: DB_PATH
+        value: /data/sunu-deal.db
+      - key: UPLOADS_DIR
+        value: /data/uploads
+      - key: SESSION_SECRET
+        generateValue: true
+    disk:
+      name: sunu-deal-data
+      mountPath: /data
+      sizeGB: 1
