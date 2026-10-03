@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunu Deal — Marketplace Sénégal</title>
+<style>
+:root{--g:#08a85a;--d:#073c27;--bg:#f5f8f6;--line:#e2eae5;--muted:#69776f}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:#10251b}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.container{width:min(1150px,92%);margin:auto}.nav{height:70px;display:flex;align-items:center;gap:18px;background:#fff}.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.brand{border:0;background:none;font-size:21px;font-weight:900;color:var(--g)}.brand span{color:#10251b}.navlinks{margin-left:auto;display:flex;gap:18px}.navlinks button{border:0;background:none}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:800}.green{background:var(--g);color:#fff}.outline{background:#fff;border:1px solid var(--line)}
+.hero{background:linear-gradient(120deg,#053b27,#0aad5c);color:#fff;padding:62px 0}.hero h1{font-size:46px;line-height:1.08;margin:12px 0}.hero p{opacity:.9}.search{background:#fff;padding:7px;border-radius:14px;display:flex;gap:5px;max-width:900px;margin-top:25px}.search input,.search select{border:0;outline:0;padding:12px;flex:1}.search button{border:0;border-radius:10px;background:var(--g);color:#fff;padding:12px 22px;font-weight:800}
+section{padding:38px 0}.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:18px}.cats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.cat{background:#fff;border:1px solid var(--line);padding:18px 8px;border-radius:13px;text-align:center}.cat i{font-size:28px;display:block;margin-bottom:8px;font-style:normal}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}.pic{height:175px;display:grid;place-items:center;background:#e9f1ec;font-size:65px}.body{padding:14px}.price{color:var(--g);font-weight:900;margin:6px 0}.muted{color:var(--muted);font-size:12px}.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal.on{display:flex}.box{background:#fff;border-radius:16px;padding:25px;width:min(650px,100%);max-height:90vh;overflow:auto;position:relative}.close{position:absolute;right:13px;top:10px;border:0;background:#eef2ef;border-radius:50%;width:34px;height:34px}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form label{font-size:12px;font-weight:800}.form .full{grid-column:1/-1}.form input,.form select,.form textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;margin-top:5px}.form textarea{min-height:100px}.msg{background:#edf6f0;padding:12px;border-radius:12px;margin:8px 0}.right{text-align:right}.notice{padding:10px;border-radius:9px;background:#fff4d7;margin:10px 0}
+footer{background:#08291c;color:#dbe9e1;padding:35px 0;margin-top:30px}
+@media(max-width:800px){.navlinks{display:none}.cats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:37px}.search{flex-wrap:wrap}.search input,.search select,.search button{width:100%;flex:none}.form{grid-template-columns:1fr}.form .full{grid-column:auto}}
+@media(max-width:520px){.cats,.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="container nav">
+<button class="brand" onclick="home()">🛍️ <span>Sunu Deal</span></button>
+<div class="navlinks"><button onclick="home()">Accueil</button><button onclick="loadMine()">Mes annonces</button><button onclick="loadFavorites()">♡ Favoris</button><button onclick="loadMessages()">Messages</button></div>
+<div id="account"></div>
+</div></header>
+
+<main>
+<section class="hero"><div class="container">
+<div>🇸🇳 Marketplace sénégalaise</div><h1>Achetez. Vendez.<br><b>Échangez sur Sunu Deal.</b></h1>
+<p>Des annonces locales en FCFA, partout au Sénégal.</p>
+<div class="search"><input id="q" placeholder="Que recherchez-vous ?"><select id="loc"><option value="">Tout le Sénégal</option><option>Dakar</option><option>Pikine</option><option>Thiès</option><option>Rufisque</option></select><button onclick="searchListings()">Rechercher</button></div>
+</div></section>
+
+<section class="container"><div class="head"><h2>Catégories</h2></div><div class="cats" id="cats"></div></section>
+<section class="container"><div class="head"><div><h2 id="title">Annonces récentes</h2><span id="count" class="muted"></span></div><select id="sort" onchange="searchListings()"><option value="recent">Plus récentes</option><option value="low">Prix croissant</option><option value="high">Prix décroissant</option></select></div><div id="list" class="grid"></div></section>
+</main>
+
+<footer><div class="container"><b>🛍️ Sunu Deal</b><p>Achetez • Vendez • Échangez au Sénégal.</p><small>Version full-stack de démonstration.</small></div></footer>
+<div class="modal" id="modal"><div class="box"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
+
+<script>
+const cats=[["📱","Téléphones"],["🚗","Voitures"],["🏠","Immobilier"],["💻","Électronique"],["👕","Mode"],["🛋️","Maison"],["💼","Services"],["🐾","Animaux"]];
+const icons={Téléphones:"📱",Voitures:"🚗",Immobilier:"🏠",Électronique:"💻",Mode:"👕",Maison:"🛋️",Services:"💼",Animaux:"🐾"};
+let me=null;
+
+const $=id=>document.getElementById(id);
+function money(n){return n==0?"Prix à discuter":new Intl.NumberFormat("fr-FR").format(n)+" FCFA"}
+function modal(x){$("modalBody").innerHTML=x;$("modal").classList.add("on")}
+function closeModal(){$("modal").classList.remove("on")}
+async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Erreur");return d}
+async function init(){const d=await api("/api/me");me=d.user;renderAccount();renderCats();searchListings()}
+function renderAccount(){$("account").innerHTML=me?`<button class="btn green" onclick="publish()">+ Vendre</button><button class="btn outline" onclick="logout()">Déconnexion</button>`:`<button class="btn outline" onclick="login()">Se connecter</button><button class="btn green" onclick="register()">Créer un compte</button>`}
+function renderCats(){$("cats").innerHTML=cats.map(c=>`<button class="cat" onclick="searchListings('${c[1]}')"><i>${c[0]}</i><b>${c[1]}</b></button>`).join("")}
+async function searchListings(category=""){const p=new URLSearchParams({q:$("q").value,location:$("loc").value,category,sort:$("sort").value});const d=await api("/api/listings?"+p);$("count").textContent=d.listings.length+" annonce(s)";$("list").innerHTML=d.listings.length?d.listings.map(card).join(""):"<p>Aucune annonce trouvée.</p>"}
+function card(x){return `<article class="card"><div class="pic">${x.image?`<img src="${x.image}" style="width:100%;height:100%;object-fit:cover">`:icons[x.category]||"🛍️"}</div><div class="body"><b>${esc(x.title)}</b><div class="price">${money(x.price)}</div><div class="muted">📍 ${esc(x.location)} · ${esc(x.condition)}</div><div class="muted">Vendeur : ${esc(x.seller_name)}</div><div class="actions"><button class="btn outline" onclick="details(${x.id})">Voir</button><button class="btn outline" onclick="fav(${x.id})">♡</button></div></div></article>`}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+async function details(id){const d=await api("/api/listings/"+id),x=d.listing;modal(`<h2>${esc(x.title)}</h2><div class="pic" style="border-radius:10px">${x.image?`<img src="${x.image}" style="width:100%;height:100%;object-fit:cover">`:icons[x.category]||"🛍️"}</div><h2 class="price">${money(x.price)}</h2><p>📍 ${esc(x.location)} · ${esc(x.condition)}</p><p>${esc(x.description)}</p><hr><p><b>Vendeur :</b> ${esc(x.seller_name)}</p>${me&&me.id!==x.user_id?`<button class="btn green" onclick="messageSeller(${x.user_id},${x.id})">Contacter le vendeur</button>`:""}`)}
+async function fav(id){if(!me)return login();await api("/api/favorites/"+id,{method:"POST"});alert("Favoris mis à jour.")}
+async function loadFavorites(){if(!me)return login();const d=await api("/api/favorites");$("title").textContent="Mes favoris";$("list").innerHTML=d.listings.map(card).join("")||"<p>Aucun favori.</p>"}
+async function loadMine(){if(!me)return login();const d=await api("/api/my-listings");$("title").textContent="Mes annonces";$("list").innerHTML=d.listings.map(x=>card(x)).join("")||"<p>Vous n'avez aucune annonce.</p>"}
+async function loadMessages(){if(!me)return login();modal(`<h2>Messagerie</h2><p>Pour commencer une conversation, ouvrez une annonce puis cliquez sur « Contacter le vendeur ».</p>`)}
+function messageSeller(id,listingId){modal(`<h2>Contacter le vendeur</h2><textarea id="message" style="width:100%;min-height:130px;padding:12px;border:1px solid #ddd;border-radius:9px" placeholder="Bonjour, votre article est-il toujours disponible ?"></textarea><button class="btn green" style="margin-top:10px" onclick="sendMessage(${id},${listingId})">Envoyer</button>`)}
+async function sendMessage(receiverId,listingId){try{await api("/api/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({receiverId,listingId,body:$("message").value})});alert("Message envoyé.");closeModal()}catch(e){alert(e.message)}}
+function login(){modal(`<h2>Connexion</h2><div class="form"><label class="full">Email<input id="email"></label><label class="full">Mot de passe<input id="password" type="password"></label></div><button class="btn green" style="margin-top:14px" onclick="doLogin()">Se connecter</button><p>Pas de compte ? <a onclick="register()">Créer un compte</a></p>`)}
+async function doLogin(){try{const d=await api("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("email").value,password:$("password").value})});me=d.user;renderAccount();closeModal();searchListings()}catch(e){alert(e.message)}}
+function register(){modal(`<h2>Créer un compte</h2><div class="form"><label>Nom<input id="name"></label><label>Téléphone<input id="phone"></label><label class="full">Email<input id="email"></label><label class="full">Mot de passe<input id="password" type="password"></label></div><button class="btn green" style="margin-top:14px" onclick="doRegister()">Créer mon compte</button>`)}
+async function doRegister(){try{const d=await api("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:$("name").value,phone:$("phone").value,email:$("email").value,password:$("password").value})});me=d.user;renderAccount();closeModal();searchListings()}catch(e){alert(e.message)}}
+async function logout(){await api("/api/logout",{method:"POST"});me=null;renderAccount();home()}
+function publish(){if(!me)return login();modal(`<h2>Publier une annonce</h2><form id="pub" class="form" enctype="multipart/form-data"><label>Titre<input name="title" required></label><label>Prix FCFA<input name="price" type="number" min="0" required></label><label>Catégorie<select name="category">${cats.map(c=>`<option>${c[1]}</option>`).join("")}</select></label><label>État<select name="condition"><option>Neuf</option><option>Occasion</option></select></label><label class="full">Ville / quartier<input name="location" required placeholder="Dakar, Plateau"></label><label class="full">Description<textarea name="description" required></textarea></label><label class="full">Photo<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label></form><button class="btn green" style="margin-top:14px" onclick="publishSubmit()">Publier</button>`)}
+async function publishSubmit(){try{const f=new FormData($("pub"));await api("/api/listings",{method:"POST",body:f});alert("Annonce publiée !");closeModal();searchListings()}catch(e){alert(e.message)}}
+function home(){window.scrollTo({top:0,behavior:"smooth"});$("title").textContent="Annonces récentes";searchListings()}
+init().catch(console.error);
+</script>
+</body>
+</html>
